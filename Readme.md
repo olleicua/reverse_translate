@@ -30,3 +30,10 @@ you if you use it enough) and put it in `js/key.js` like so:
 window.Translator = window.Translator || {};
 window.Translator.ApiKey = 'API_KEY';
 ```
+
+Demo
+----
+
+(the en and he in the upper left designate source and destination language)
+
+![](https://raw.github.com/olleicua/reverse_translate/master/screenshot.png "")
