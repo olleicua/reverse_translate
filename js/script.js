@@ -108,9 +108,12 @@ window.Translator = window.Translator || {};
 
     result.innerHTML = '...';
     this.apiCall(q, from, to, model, function(response) {
-      var translation = response.data.translations[0].translatedText;
-      result.innerHTML = q + ' <span class="arrow"></span> ' + translation;
-      if (callback) callback(translation, box);
+      result.innerHTML = '';
+      for (var i = 0; i < response.data.translations.length; i++) {
+        result.innerHTML += q + ' <span class="arrow"></span> ' +
+          response.data.translations[i].translatedText + '<br />';
+      }
+      if (callback) callback(response.data.translations[0].translatedText, box);
     });
 
     return box;
