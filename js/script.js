@@ -9,7 +9,8 @@ window.Translator = window.Translator || {};
     this.q = document.querySelector('.controls input.q');
     this.from = document.querySelector('.controls input.from');
     this.to = document.querySelector('.controls input.to');
-    this.button = document.querySelector('.controls button');
+    this.swapButton = document.querySelector('.controls .swap');
+    this.translateButton = document.querySelector('.controls .translate');
     this.output = document.querySelector('.output');
 
     this.q.focus();
@@ -17,7 +18,19 @@ window.Translator = window.Translator || {};
     this.q.addEventListener('change', function() { that.translate(); });
     this.from.addEventListener('change', function() { that.translate(); });
     this.to.addEventListener('change', function() { that.translate(); });
-    this.button.addEventListener('click', function() { that.translate(); });
+
+    this.translateButton.addEventListener('click', function() {
+      that.translate();
+    });
+
+    this.swapButton.addEventListener('click', function() {
+      var tmp = that.to.value;
+      that.to.value = that.from.value;
+      that.from.value = tmp;
+      that.q.value = that.mostRecentTranslation
+
+      that.translate();
+    });
   };
 
   Translator.translate = function() {
@@ -39,32 +52,36 @@ window.Translator = window.Translator || {};
     ];
 
     for (var i = 0; i < models.length; i++) {
-      var model = models[i][0];
-      var label = models[i][1];
+      (function(model, label) {
 
-      this.output.appendChild(
-        this.newOutputBox(
-          label,
-          this.q.value,
-          this.from.value,
-          this.to.value,
-          model,
-          function(translation, box) {
-            var words = translation.split(' ');
-            for (var i = 0; i < words.length; i++) {
-              box.appendChild(
-                that.newOutputBox(
-                  null,
-                  words[i],
-                  that.to.value,
-                  that.from.value,
-                  model
-                )
-              );
+        that.output.appendChild(
+          that.newOutputBox(
+            label,
+            that.q.value,
+            that.from.value,
+            that.to.value,
+            model,
+            function(translation, box) {
+
+              // store nmt for swapping purposes
+              if (model === 'nmt') that.mostRecentTranslation = translation;
+
+              var words = translation.split(' ');
+              for (var i = 0; i < words.length; i++) {
+                box.appendChild(
+                  that.newOutputBox(
+                    null,
+                    words[i],
+                    that.to.value,
+                    that.from.value,
+                    model
+                  )
+                );
+              }
             }
-          }
-        )
-      );
+          )
+        );
+      }).apply(that, models[i]);
     }
 
     this.q.focus();
@@ -85,15 +102,19 @@ window.Translator = window.Translator || {};
     result.className = 'result';
     box.appendChild(result);
 
+    // TODO: swapping back and forth
+    //var continueButton = document.createElement('button');
+    //continueButton = 
+
     result.innerHTML = '...';
     this.apiCall(q, from, to, model, function(response) {
       var translation = response.data.translations[0].translatedText;
-      result.innerHTML = q + ' -> ' + translation;
+      result.innerHTML = q + ' <span class="arrow"></span> ' + translation;
       if (callback) callback(translation, box);
     });
 
     return box;
-  }
+  };
 
   Translator.apiCall = function(q, from, to, model, callback) {
     var params =
