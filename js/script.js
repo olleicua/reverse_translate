@@ -46,6 +46,8 @@ window.Translator = window.Translator || {};
 
     this.output.innerHTML = '';
 
+    that.output.appendChild(this.newLinkBox());
+
     var models = [
       ['nmt', 'Neural Machine Translation'],
       ['base', 'Phrase-Based Machine Translation']
@@ -115,6 +117,28 @@ window.Translator = window.Translator || {};
       }
       if (callback) callback(response.data.translations[0].translatedText, box);
     });
+
+    return box;
+  };
+
+  Translator.newLinkBox = function() {
+    var box = document.createElement('div');
+    box.className = 'output-box';
+
+    var labelBox = document.createElement('div');
+    labelBox.className = 'label';
+    labelBox.innerHTML = 'Google Translate Link'
+    box.appendChild(labelBox);
+
+    var result = document.createElement('div');
+    result.className = 'result';
+    box.appendChild(result);
+
+    var link =
+        'https://translate.google.com/?um=1&ie=UTF-8&hl=en&client=tw-ob#' +
+        this.from.value + '/' + this.to.value + '/' + this.q.value;
+
+    result.innerHTML = '<a href="' + encodeURI(link) + '">' + link + '</a>';
 
     return box;
   };
